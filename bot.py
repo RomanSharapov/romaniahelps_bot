@@ -48,7 +48,7 @@ def send_email(user_data: Dict[str, str]) -> None:
     sent_from = gmail_user
     to = gmail_user
     subject = '[Bot] Help needed!'
-    body = f"Hey Volunteers,\n\nI've collected the following data: {user_data}"
+    body = f"Hey Volunteers,\n\nI've collected the following data:\n{pformat(user_data)}"
 
     email_text = """\
     From: %s
@@ -56,7 +56,7 @@ def send_email(user_data: Dict[str, str]) -> None:
     Subject: %s
 
     %s
-    """ % (sent_from, to, subject, pformat(user_data))
+    """ % (sent_from, to, subject, body)
 
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
