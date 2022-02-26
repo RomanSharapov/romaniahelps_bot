@@ -41,11 +41,6 @@ logger = logging.getLogger(__name__)
 HELP_NEEDED, LOCATION, CONTACTS = range(3)
 
 
-def data_to_str(user_data: Dict[str, str]) -> str:
-    """Helper function for formatting the gathered user data"""
-    return pprint(user_data)
-
-
 def send_email(user_data: Dict[str, str]) -> None:
     gmail_user = EMAIL_USER
     gmail_password = EMAIL_PASSWD
@@ -61,7 +56,7 @@ def send_email(user_data: Dict[str, str]) -> None:
     Subject: %s
 
     %s
-    """ % (sent_from, to, subject, data_to_str(user_data))
+    """ % (sent_from, to, subject, pprint(user_data))
 
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
