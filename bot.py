@@ -45,7 +45,10 @@ def help_needed(update: Update, context: CallbackContext) -> int:
     """Stores the selected gender and asks for a photo."""
     user = update.message.from_user
     text = update.message.text
-    context.user_data['help_needed'] = text
+
+    context.user_data[user.id] = {}
+    context.user_data[user.id]['user_name'] = user.first_name
+    context.user_data[user.id]['help_needed'] = text
 
     logger.info("User %s needs help with: %s", user.first_name, text)
     update.message.reply_text(
@@ -62,7 +65,7 @@ def location(update: Update, context: CallbackContext) -> int:
     user_location = update.message.location
 
     user_data = context.user_data
-    user_data['location'] = (user_location.latitude, user_location.longitude)
+    user_data[user.id]['location'] = (user_location.latitude, user_location.longitude)
 
     logger.info(
         "Location of %s: %f / %f", user.first_name, user_location.latitude, user_location.longitude
@@ -78,7 +81,7 @@ def skip_location(update: Update, context: CallbackContext) -> int:
     """Skips the location and asks for the user contacts."""
     user = update.message.from_user
     user_data = context.user_data
-    user_data['location'] = (None, None)
+    user_data[user.id]['location'] = (None, None)
 
     logger.info("User %s did not send a location.", user.first_name)
     update.message.reply_text(
@@ -93,7 +96,7 @@ def contacts(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     user_data = context.user_data
     text = update.message.text
-    context.user_data['contacts'] = text
+    context.user_data[user.id]['contacts'] = text
 
     logger.info("Contacts of %s: %s", user.first_name, text)
     update.message.reply_text('Thank you! Romanian volunteers will reach out to you shortly.')
