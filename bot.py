@@ -6,7 +6,7 @@ import logging
 import os
 import smtplib
 
-from pprint import pprint
+from pprint import pformat
 from typing import Dict
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
@@ -56,7 +56,7 @@ def send_email(user_data: Dict[str, str]) -> None:
     Subject: %s
 
     %s
-    """ % (sent_from, to, subject, pprint(user_data))
+    """ % (sent_from, to, subject, pformat(user_data))
 
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
