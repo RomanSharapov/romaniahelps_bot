@@ -6,10 +6,10 @@ import logging
 import os
 import smtplib
 
-from pprint import pformat
+from email.message import EmailMessage
 from typing import Dict
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
     Updater,
     CommandHandler,
@@ -26,6 +26,8 @@ if BOT_TOKEN is None:
     raise EnvironmentError("Please, set BOT_TOKEN environment variable with the bot token from @BotFather")
 BOT_URL = "https://romanianshelp.herokuapp.com/"
 
+EMAIL_SERVER = "smtp.gmail.com"
+EMAIL_PORT = 465
 EMAIL_USER = "romanianshelp@gmail.com"
 EMAIL_PASSWD = os.environ.get("EMAIL_PASSWD")
 if EMAIL_PASSWD is None:
@@ -41,29 +43,37 @@ logger = logging.getLogger(__name__)
 HELP_NEEDED, LOCATION, CONTACTS = range(3)
 
 
-def send_email(user_data: Dict[str, str]) -> None:
-    gmail_user = EMAIL_USER
-    gmail_password = EMAIL_PASSWD
+def send_email(user_data: Dict[str, Dict[str, str]]) -> None:
+    """Sends email with the user data to the specified SMTP server."""
+    email_user = EMAIL_USER
+    email_password = EMAIL_PASSWD
 
-    sent_from = gmail_user
-    to = gmail_user
-    subject = '[Bot] Help needed!'
-    body = f"Hey Volunteers,\n\nI've collected the following data:\n{pformat(user_data, indent=4)}"
+    msg = EmailMessage()
 
-    email_text = """\
-    From: %s
-    To: %s
-    Subject: %s
+    def data_pprint(user_data: Dict[str, Dict[str, str]]) -> str:
+        result = []
+        for key, value in user_data.items():
+            result.append(f"User with id {key} requested the following help:")
+            result.append(f"My name is {value['user_name']},")
+            result.append(f"I need help with: {value['help_needed']}")
+            result.append(f"My coordinates: {value['location']}")
+            result.append(f"My contacts: {value['contacts']}")
+        return '\n'.join(result)
 
-    %s
-    """ % (sent_from, to, subject, body)
+    msg.set_content(
+        f"Hey Volunteers,\n\n{data_pprint(user_data)}"
+    )
+
+    msg['Subject'] = '[Bot] Help needed!'
+    msg['From'] = email_user
+    msg['To'] = email_user
 
     try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server = smtplib.SMTP_SSL(EMAIL_SERVER, EMAIL_PORT)
         server.ehlo()
-        server.login(gmail_user, gmail_password)
-        server.sendmail(sent_from, to, email_text)
-        server.close()
+        server.login(email_user, email_password)
+        server.send_message(msg)
+        server.quit()
 
         logger.info('Email sent successfully!')
     except Exception as e:
@@ -76,7 +86,7 @@ def start(update: Update, context: CallbackContext) -> int:
 
     update.message.reply_text(
         'Hi! Romanians Help Bot will help you to connect with volunteers in Romania. '
-        'Send /cancel to stop interaction.\n\n'
+        'Send or hit /cancel to stop interaction.\n\n'
         'What kind of help do you need (e.g. accomodation, food, or something else)?',
     )
 
@@ -84,7 +94,7 @@ def start(update: Update, context: CallbackContext) -> int:
 
 
 def help_needed(update: Update, context: CallbackContext) -> int:
-    """Stores the selected gender and asks for a photo."""
+    """Stores the help message and asks for the user's location."""
     user = update.message.from_user
     text = update.message.text
 
@@ -93,8 +103,9 @@ def help_needed(update: Update, context: CallbackContext) -> int:
     context.user_data[user.id]['help_needed'] = text
 
     logger.info("User %s needs help with: %s", user.first_name, text)
+
     update.message.reply_text(
-        'I see! Please send me your location, '
+        'I see! Please share your current location or venue, '
         'so volunteers can find you, or send /skip if you don\'t want to.',
     )
 
@@ -107,13 +118,17 @@ def location(update: Update, context: CallbackContext) -> int:
     user_location = update.message.location
 
     user_data = context.user_data
-    user_data[user.id]['location'] = (user_location.latitude, user_location.longitude)
+    user_data[user.id]['location'] = ", ".join((str(user_location.latitude), str(user_location.longitude)))
 
     logger.info(
         "Location of %s: %f / %f", user.first_name, user_location.latitude, user_location.longitude
     )
+
+    contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
+    reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
     update.message.reply_text(
-        'Thank you! At last, tell me how our volunteers can contact you.'
+        'Thank you! At last, tell me how our volunteers can contact you.',
+        reply_markup=reply_markup,
     )
 
     return CONTACTS
@@ -123,11 +138,15 @@ def skip_location(update: Update, context: CallbackContext) -> int:
     """Skips the location and asks for the user contacts."""
     user = update.message.from_user
     user_data = context.user_data
-    user_data[user.id]['location'] = (None, None)
+    user_data[user.id]['location'] = ("unknown", "unknown")
 
     logger.info("User %s did not send a location.", user.first_name)
+
+    contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
+    reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
     update.message.reply_text(
-        'That\'s fine, we respect your privacy! At last, tell me how our volunteers can contact you.'
+        'That\'s fine, we respect your privacy! At last, tell me how our volunteers can contact you.',
+        reply_markup=reply_markup,
     )
 
     return CONTACTS
@@ -138,10 +157,20 @@ def contacts(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     user_data = context.user_data
     text = update.message.text
-    context.user_data[user.id]['contacts'] = text
+    contacts = update.message.contact
 
-    logger.info("Contacts of %s: %s", user.first_name, text)
-    update.message.reply_text('Thank you! Romanian volunteers will reach out to you shortly.')
+    if text is None:
+        contact_string = f"{contacts.first_name} {contacts.last_name}, phone number: +{contacts.phone_number}"
+        context.user_data[user.id]['contacts'] = contact_string
+        logger.info("Phone number of %s %s: %s", contacts.first_name, contacts.last_name, contacts.phone_number)
+    else:
+        context.user_data[user.id]['contacts'] = update.message.text
+        logger.info("Contacts of %s: %s", user.first_name, text)
+
+    update.message.reply_text(
+        'Thank you! Romanian volunteers will reach out to you shortly.',
+        reply_markup=ReplyKeyboardRemove()
+    )
 
     send_email(user_data)
     logger.info("Gathered data: %s", user_data)
@@ -156,7 +185,8 @@ def cancel(update: Update, context: CallbackContext) -> int:
 
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text(
-        'Interaction canceled! Stay safe.', reply_markup=ReplyKeyboardRemove()
+        'Interaction canceled! Stay safe.',
+        reply_markup=ReplyKeyboardRemove(),
     )
 
     user_data.clear()
@@ -178,7 +208,7 @@ def main() -> None:
                 MessageHandler(Filters.location, location),
                 CommandHandler('skip', skip_location),
             ],
-            CONTACTS: [MessageHandler(Filters.text & ~Filters.command, contacts)],
+            CONTACTS: [MessageHandler((Filters.text | Filters.contact) & ~Filters.command, contacts)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
