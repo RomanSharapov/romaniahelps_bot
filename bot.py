@@ -48,7 +48,7 @@ def send_email(user_data: Dict[str, str]) -> None:
     sent_from = gmail_user
     to = gmail_user
     subject = '[Bot] Help needed!'
-    body = f"Hey Volunteers,\n\nI've collected the following data:\n{pformat(user_data)}"
+    body = f"Hey Volunteers,\n\nI've collected the following data:\n{pformat(user_data, indent=4)}"
 
     email_text = """\
     From: %s
