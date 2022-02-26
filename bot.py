@@ -14,6 +14,10 @@ from telegram.ext import (
     CallbackContext,
 )
 
+PORT = int(os.environ.get("PORT", 8443))
+BOT_TOKEN = os.environ["BOT_TOKEN"]
+BOT_URL = "https://romanianshelp.herokuapp.com/"
+
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -124,8 +128,12 @@ def cancel(update: Update, context: CallbackContext) -> int:
 
 def main() -> None:
     """Run the bot."""
+    BOT_TOKEN = os.getenv("BOT_TOKEN")
+    if BOT_TOKEN is None:
+        raise EnvironmentError("Please, set BOT_TOKEN environment variable with the bot token from @BotFather")
+
     # Create the Updater and pass it your bot's token.
-    updater = Updater("TOKEN")
+    updater = Updater(BOT_TOKEN)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
