@@ -3,6 +3,7 @@
 # This program is dedicated to the public domain under the CC0 license.
 
 import logging
+import os
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
