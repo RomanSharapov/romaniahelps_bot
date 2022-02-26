@@ -85,9 +85,9 @@ def start(update: Update, context: CallbackContext) -> int:
     """Starts the conversation and asks the user about help message."""
 
     update.message.reply_text(
-        'Hi! Romanians Help Bot will help you to connect with volunteers in Romania. '
-        'Send or hit /cancel to stop interaction.\n\n'
-        'What kind of help do you need (e.g. accomodation, food, or something else)?',
+        'Привiт! Romanians Help Бот допоможе вам зв\'язатися з волонтерами в Румунії. '
+        'Надішліть або натисніть /cancel, щоб припинити взаємодію.\n\n'
+        'Яка допомога вам потрібна (наприклад, житло, їжа чи щось інше)?',
     )
 
     return HELP_NEEDED
@@ -105,8 +105,8 @@ def help_needed(update: Update, context: CallbackContext) -> int:
     logger.info("User %s needs help with: %s", user.first_name, text)
 
     update.message.reply_text(
-        'I see! Please share your current location or venue, '
-        'so volunteers can find you, or send /skip if you don\'t want to.',
+        'Розумію! Будь ласка, поділіться своїм поточним місцезнаходженням, '
+        'щоб волонтери могли знайти вас, або надішлить /skip, якщо ви не хочете ділитися своїм поточним місцезнаходженням.',
     )
 
     return LOCATION
@@ -127,7 +127,7 @@ def location(update: Update, context: CallbackContext) -> int:
     contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
     reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
     update.message.reply_text(
-        'Thank you! At last, tell me how our volunteers can contact you.',
+        'Дякую! Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися.',
         reply_markup=reply_markup,
     )
 
@@ -145,7 +145,7 @@ def skip_location(update: Update, context: CallbackContext) -> int:
     contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
     reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
     update.message.reply_text(
-        'That\'s fine, we respect your privacy! At last, tell me how our volunteers can contact you.',
+        'Не проблема, ми поважаємо вашу конфіденційність! Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися.',
         reply_markup=reply_markup,
     )
 
@@ -168,7 +168,7 @@ def contacts(update: Update, context: CallbackContext) -> int:
         logger.info("Contacts of %s: %s", user.first_name, text)
 
     update.message.reply_text(
-        'Thank you! Romanian volunteers will reach out to you shortly.',
+        'Дякую! Румунські волонтери незабаром зв’яжуться з вами.',
         reply_markup=ReplyKeyboardRemove()
     )
 
@@ -185,7 +185,7 @@ def cancel(update: Update, context: CallbackContext) -> int:
 
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text(
-        'Interaction canceled! Stay safe.',
+        'Взаємодія скасована! Залишайтесь у безпеці.',
         reply_markup=ReplyKeyboardRemove(),
     )
 
