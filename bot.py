@@ -6,6 +6,9 @@ import logging
 import os
 import smtplib
 
+from pprint import pprint
+from typing import Dict
+
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
     Updater,
@@ -38,14 +41,19 @@ logger = logging.getLogger(__name__)
 HELP_NEEDED, LOCATION, CONTACTS = range(3)
 
 
-def send_email(user_data):
+def data_to_str(user_data: Dict[str, str]) -> str:
+    """Helper function for formatting the gathered user data"""
+    return pprint(user_data)
+
+
+def send_email(user_data: Dict[str, str]) -> None:
     gmail_user = EMAIL_USER
     gmail_password = EMAIL_PASSWD
 
     sent_from = gmail_user
-    to = [gmail_user]
+    to = gmail_user
     subject = '[Bot] Help needed!'
-    body = f"Hey Volunteers,\n\nI collected the following data: {user_data}"
+    body = f"Hey Volunteers,\n\nI've collected the following data: {user_data}"
 
     email_text = """\
     From: %s
@@ -53,7 +61,7 @@ def send_email(user_data):
     Subject: %s
 
     %s
-    """ % (sent_from, ", ".join(to), subject, body)
+    """ % (sent_from, to, subject, data_to_str(user_data))
 
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
