@@ -4,6 +4,7 @@
 
 import logging
 import os
+import smtplib
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import (
@@ -16,8 +17,16 @@ from telegram.ext import (
 )
 
 PORT = int(os.environ.get("PORT", 8443))
-BOT_TOKEN = os.environ["BOT_TOKEN"]
+
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+if BOT_TOKEN is None:
+    raise EnvironmentError("Please, set BOT_TOKEN environment variable with the bot token from @BotFather")
 BOT_URL = "https://romanianshelp.herokuapp.com/"
+
+EMAIL_USER = "romanianshelp@gmail.com"
+EMAIL_PASSWD = os.environ.get("EMAIL_PASSWD")
+if EMAIL_PASSWD is None:
+    raise EnvironmentError("Please, set EMAIL_PASSWD environment variable with the emal password")
 
 # Enable logging
 logging.basicConfig(
@@ -27,6 +36,35 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 HELP_NEEDED, LOCATION, CONTACTS = range(3)
+
+
+def send_email(user_data):
+    gmail_user = EMAIL_USER
+    gmail_password = EMAIL_PASSWD
+
+    sent_from = gmail_user
+    to = [gmail_user]
+    subject = '[Bot] Help needed!'
+    body = f"Hey Volunteers,\n\nI collected the following data: {user_data}"
+
+    email_text = """\
+    From: %s
+    To: %s
+    Subject: %s
+
+    %s
+    """ % (sent_from, ", ".join(to), subject, body)
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.ehlo()
+        server.login(gmail_user, gmail_password)
+        server.sendmail(sent_from, to, email_text)
+        server.close()
+
+        logger.info('Email sent successfully!')
+    except:
+        logger.error('Something went wrong with email...')
 
 
 def start(update: Update, context: CallbackContext) -> int:
@@ -101,7 +139,7 @@ def contacts(update: Update, context: CallbackContext) -> int:
     logger.info("Contacts of %s: %s", user.first_name, text)
     update.message.reply_text('Thank you! Romanian volunteers will reach out to you shortly.')
 
-
+    send_email(user_data)
     logger.info("Gathered data: %s", user_data)
 
     return ConversationHandler.END
@@ -123,9 +161,6 @@ def cancel(update: Update, context: CallbackContext) -> int:
 
 def main() -> None:
     """Run the bot."""
-    BOT_TOKEN = os.getenv("BOT_TOKEN")
-    if BOT_TOKEN is None:
-        raise EnvironmentError("Please, set BOT_TOKEN environment variable with the bot token from @BotFather")
 
     updater = Updater(BOT_TOKEN)
 
