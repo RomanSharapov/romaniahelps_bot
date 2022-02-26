@@ -141,7 +141,7 @@ def main() -> None:
 
     # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
+        entry_points=[CommandHandler(['start', 'starthelp'], start)],
         states={
             GENDER: [MessageHandler(Filters.regex('^(Boy|Girl|Other)$'), gender)],
             PHOTO: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
