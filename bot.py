@@ -63,8 +63,9 @@ def send_email(user_data):
         server.close()
 
         logger.info('Email sent successfully!')
-    except:
+    except Exception as e:
         logger.error('Something went wrong with email...')
+        logger.error(e)
 
 
 def start(update: Update, context: CallbackContext) -> int:
