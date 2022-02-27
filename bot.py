@@ -9,7 +9,13 @@ import smtplib
 from email.message import EmailMessage
 from typing import Dict
 
-from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import (
+    KeyboardButton,
+    ParseMode,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    Update,
+)
 from telegram.ext import (
     Updater,
     CommandHandler,
@@ -96,6 +102,7 @@ def start(update: Update, context: CallbackContext) -> int:
         '🇺🇲 Hi! Romanians Help Bot will help you to connect with volunteers in Romania. '
         'Send or hit /cancel to stop interaction.\n\n'
         'What kind of help do you need (e.g. accomodation, food, or something else)?',
+        reply_markup=ReplyKeyboardRemove(),
     )
 
     return HELP_NEEDED
@@ -157,14 +164,20 @@ def skip_location(update: Update, context: CallbackContext) -> int:
 
     logger.info("User %s did not send a location.", user.first_name)
 
-    contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
+    contact_button = [[KeyboardButton(text="Send my phone number", request_contact=True)]]
     reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
     update.message.reply_text(
-        '🇺🇦 Не проблема, ми поважаємо вашу конфіденційність! '
-        'Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися.\n\n'
-        '🇷🇺 Не проблема, мы уважаем вашу конфиденциальность! '
-        'Наконец, скажите мне, как наши волонтёры могут с вами связаться.\n\n'
-        '🇺🇲 That\'s fine, we respect your privacy! At last, tell me how our volunteers can contact you.',
+        "🇺🇦 Не проблема, ми поважаємо вашу конфіденційність\! "
+        "Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися\.\n"
+        "*⚠ Увага\!\nБудь ласка, надішліть свій номер телефону, натиснувши кнопку знизу "
+        "або вкажіть свою адресу електронної пошти\.*\n\n"
+        "🇷🇺 Не проблема, мы уважаем вашу конфиденциальность\! "
+        "Наконец, скажите мне, как наши волонтёры могут с вами связаться\.\n"
+        "*⚠ Внимание\!\nПожалуйста, отправьте свой номер телефона нажав кнопку внизу "
+        "или укажите свой адрес электронной почты\.*\n\n"
+        "🇺🇲 That's fine, we respect your privacy\! At last, tell me how our volunteers can contact you\.\n"
+        "*⚠ Important\!\nPlease provide your phone number by clicking the button below or type your email address\.*",
+        parse_mode=ParseMode.MARKDOWN_V2,
         reply_markup=reply_markup,
     )
 
@@ -183,14 +196,21 @@ def contacts(update: Update, context: CallbackContext) -> int:
         context.user_data[user.id]['contacts'] = contact_string
         logger.info("Phone number of %s %s: %s", contacts.first_name, contacts.last_name, contacts.phone_number)
     else:
-        context.user_data[user.id]['contacts'] = update.message.text
-        logger.info("Contacts of %s: %s", user.first_name, text)
+        context.user_data[user.id]['contacts'] = f"{user.first_name} {user.last_name}, contact info: {update.message.text}"
+        logger.info("Contacts of %s %s: %s", user.first_name, user.last_name, text)
 
     update.message.reply_text(
-        '🇺🇦 Дякую! Румунські волонтери незабаром зв’яжуться з вами.\n\n'
-        '🇷🇺 Спасибо! Румынские волонтёры скоро свяжутся с вами.\n\n'
-        '🇺🇲 Thank you! Romanian volunteers will reach out to you shortly.',
-        reply_markup=ReplyKeyboardRemove()
+        "🇺🇦 Дякую\! Румунські волонтери незабаром зв’яжуться з вами\.\n"
+        "Наш гурт у Телеграм [RomaniansHelp](https://t.me/romanianshelp)\.\n"
+        "Наш вебсайт [romanianshelp\.com](https://romanianshelp.com/)\n\n"
+        "🇷🇺 Спасибо\! Румынские волонтёры скоро свяжутся с вами\.\n"
+        "Наша группа в Телеграм [RomaniansHelp](https://t.me/romanianshelp)\.\n"
+        "Наш вебсайт [romanianshelp\.com](https://romanianshelp.com/)\n\n"
+        "🇺🇲 Thank you\! Romanian volunteers will reach out shortly\.\n"
+        "Our group in Telegram [RomaniansHelp](https://t.me/romanianshelp)\.\n"
+        "Our website [romanianshelp\.com](https://romanianshelp.com/)",
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup=ReplyKeyboardRemove(),
     )
 
     send_email(user_data)
