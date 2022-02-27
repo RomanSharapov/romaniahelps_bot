@@ -87,7 +87,13 @@ def start(update: Update, context: CallbackContext) -> int:
     """Starts the conversation and asks the user about help message."""
 
     update.message.reply_text(
-        'Hi! Romanians Help Bot will help you to connect with volunteers in Romania. '
+        '🇺🇦 Привiт! Romanians Help Бот допоможе вам зв\'язатися з волонтерами в Румунії. '
+        'Надішліть або натисніть /cancel, щоб припинити взаємодію.\n\n'
+        'Яка допомога вам потрібна (наприклад, житло, їжа чи щось інше)?\n\n'
+        '🇷🇺 Привет! Romanians Help Бот поможет вам связаться с волонтерами из Румынии. '
+        'Напиши или нажми /cancel для прекращения общения с ботом.\n\n'
+        'Какая помощь требуется (например, жильё, питание или ещё что-то)?\n\n'
+        '🇺🇲 Hi! Romanians Help Bot will help you to connect with volunteers in Romania. '
         'Send or hit /cancel to stop interaction.\n\n'
         'What kind of help do you need (e.g. accomodation, food, or something else)?',
     )
@@ -107,7 +113,12 @@ def help_needed(update: Update, context: CallbackContext) -> int:
     logger.info("User %s needs help with: %s", user.first_name, text)
 
     update.message.reply_text(
-        'I see! Please share your current location or venue, '
+        '🇺🇦 Розумію! Будь ласка, поділіться своїм поточним місцезнаходженням, '
+        'щоб волонтери могли знайти вас, або надішлить /skip, '
+        'якщо ви не хочете ділитися своїм поточним місцезнаходженням.\n\n'
+        '🇷🇺 Понятно! Пожалуйста, поделитесь своим местоположением или укажите точку встречи для того, '
+        'чтобы волонтёры могли вас найти. Напишите /skip, если не хотите делиться местоположением.\n\n'
+        '🇺🇲 I see! Please share your current location or venue, '
         'so volunteers can find you, or send /skip if you don\'t want to.',
     )
 
@@ -129,7 +140,9 @@ def location(update: Update, context: CallbackContext) -> int:
     contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
     reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
     update.message.reply_text(
-        'Thank you! At last, tell me how our volunteers can contact you.',
+        '🇺🇦 Дякую! Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися.\n\n'
+        '🇷🇺 Спасибо! Наконец, скажите мне, как наши волонтёры могут с вами связаться.\n\n'
+        '🇺🇲 Thank you! At last, tell me how our volunteers can contact you.',
         reply_markup=reply_markup,
     )
 
@@ -147,7 +160,11 @@ def skip_location(update: Update, context: CallbackContext) -> int:
     contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
     reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
     update.message.reply_text(
-        'That\'s fine, we respect your privacy! At last, tell me how our volunteers can contact you.',
+        '🇺🇦 Не проблема, ми поважаємо вашу конфіденційність! '
+        'Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися.\n\n'
+        '🇷🇺 Не проблема, мы уважаем вашу конфиденциальность! '
+        'Наконец, скажите мне, как наши волонтёры могут с вами связаться.\n\n'
+        '🇺🇲 That\'s fine, we respect your privacy! At last, tell me how our volunteers can contact you.',
         reply_markup=reply_markup,
     )
 
@@ -170,7 +187,9 @@ def contacts(update: Update, context: CallbackContext) -> int:
         logger.info("Contacts of %s: %s", user.first_name, text)
 
     update.message.reply_text(
-        'Thank you! Romanian volunteers will reach out to you shortly.',
+        '🇺🇦 Дякую! Румунські волонтери незабаром зв’яжуться з вами.\n\n'
+        '🇷🇺 Спасибо! Румынские волонтёры скоро свяжутся с вами.\n\n'
+        '🇺🇲 Thank you! Romanian volunteers will reach out to you shortly.',
         reply_markup=ReplyKeyboardRemove()
     )
 
@@ -187,7 +206,9 @@ def cancel(update: Update, context: CallbackContext) -> int:
 
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text(
-        'Interaction canceled! Stay safe.',
+        '🇺🇦 Взаємодія скасована! Залишайтесь у безпеці.\n\n'
+        '🇷🇺 Взаимодействие с ботом прекращено! Берегите себя.\n\n'
+        '🇺🇲 Interaction canceled! Stay safe.',
         reply_markup=ReplyKeyboardRemove(),
     )
 
