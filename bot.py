@@ -145,11 +145,17 @@ def location(update: Update, context: CallbackContext) -> int:
     )
 
     contact_button = [[KeyboardButton(text="Send my contacts", request_contact=True)]]
-    reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True, resize_keyboard=True)
     update.message.reply_text(
-        '🇺🇦 Дякую! Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися.\n\n'
-        '🇷🇺 Спасибо! Наконец, скажите мне, как наши волонтёры могут с вами связаться.\n\n'
-        '🇺🇲 Thank you! At last, tell me how our volunteers can contact you.',
+        "🇺🇦 Дякую\! Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися\.\n"
+        "*⚠ Увага\!\nБудь ласка, надішліть свій номер телефону, натиснувши кнопку знизу "
+        "або вкажіть свою адресу електронної пошти\.*\n\n"
+        "🇷🇺 Спасибо\! Наконец, скажите мне, как наши волонтёры могут с вами связаться\.\n"
+        "*⚠ Внимание\!\nПожалуйста, отправьте свой номер телефона нажав кнопку внизу "
+        "или укажите свой адрес электронной почты\.*\n\n"
+        "🇺🇲 Thank you\! At last, tell me how our volunteers can contact you\.\n"
+        "*⚠ Important\!\nPlease provide your phone number by clicking the button below or type your email address\.*",
+        parse_mode=ParseMode.MARKDOWN_V2,
         reply_markup=reply_markup,
     )
 
