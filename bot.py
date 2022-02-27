@@ -165,7 +165,7 @@ def skip_location(update: Update, context: CallbackContext) -> int:
     logger.info("User %s did not send a location.", user.first_name)
 
     contact_button = [[KeyboardButton(text="Send my phone number", request_contact=True)]]
-    reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(contact_button, one_time_keyboard=True, resize_keyboard=True)
     update.message.reply_text(
         "🇺🇦 Не проблема, ми поважаємо вашу конфіденційність\! "
         "Наостанок скажіть мені, як наші волонтери можуть з вами зв’язатися\.\n"
