@@ -201,7 +201,7 @@ def contacts(update: Update, context: CallbackContext) -> int:
 
     update.message.reply_text(
         "🇺🇦 Дякую\! Румунські волонтери незабаром зв’яжуться з вами\.\n"
-        "Наш гурт у Телеграм [RomaniansHelp](https://t.me/romanianshelp)\.\n"
+        "Наша група у Телеграм [RomaniansHelp](https://t.me/romanianshelp)\.\n"
         "Наш вебсайт [romanianshelp\.com](https://romanianshelp.com/)\n\n"
         "🇷🇺 Спасибо\! Румынские волонтёры скоро свяжутся с вами\.\n"
         "Наша группа в Телеграм [RomaniansHelp](https://t.me/romanianshelp)\.\n"
