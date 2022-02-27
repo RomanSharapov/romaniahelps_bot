@@ -33,6 +33,8 @@ EMAIL_PASSWD = os.environ.get("EMAIL_PASSWD")
 if EMAIL_PASSWD is None:
     raise EnvironmentError("Please, set EMAIL_PASSWD environment variable with the emal password")
 
+SEND_MESSAGES_TO = "support@romanianshelp.zendesk.com"
+
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -66,7 +68,7 @@ def send_email(user_data: Dict[str, Dict[str, str]]) -> None:
 
     msg['Subject'] = '[Bot] Help needed!'
     msg['From'] = email_user
-    msg['To'] = email_user
+    msg['To'] = SEND_MESSAGES_TO
 
     try:
         server = smtplib.SMTP_SSL(EMAIL_SERVER, EMAIL_PORT)
